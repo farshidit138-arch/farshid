@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import StudyPlanner from './StudyPlanner';
 
 const STORAGE_KEY = '@hamrah_danesh_activities';
 
@@ -118,6 +119,34 @@ export default function App() {
         'لطفاً تعداد سؤال را وارد کنید.'
       );
       return;
+    }
+    if (selectedType === 'test' || selectedType === 'exam') {
+      const total = Number(count);
+      const right = Number(correct || 0);
+      const wrongCount = Number(wrong || 0);
+
+      if (
+        !Number.isInteger(total) ||
+        total <= 0 ||
+        !Number.isInteger(right) ||
+        !Number.isInteger(wrongCount) ||
+        right < 0 ||
+        wrongCount < 0
+      ) {
+        Alert.alert(
+          'اطلاعات نامعتبر',
+          'تعداد سؤال، درست و غلط باید عدد صحیح و معتبر باشند.'
+        );
+        return;
+      }
+
+      if (right + wrongCount > total) {
+        Alert.alert(
+          'خطا در تعداد پاسخ‌ها',
+          `مجموع درست و غلط (${right + wrongCount}) نمی‌تواند بیشتر از کل سؤالات (${total}) باشد.`
+        );
+        return;
+      }
     }
 
     const selectedSubjectTitle =
@@ -316,7 +345,17 @@ export default function App() {
               ＋ ثبت فعالیت
             </Text>
           </Pressable>
-
+          <Pressable
+            style={[
+              styles.primaryButton,
+              { backgroundColor: '#159B83', marginTop: 12 },
+            ]}
+            onPress={() => setScreen('studyPlanner')}
+          >
+            <Text style={styles.primaryButtonText}>
+              📅 برنامه‌ریزی هفتگی
+            </Text>
+          </Pressable>
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>
               📚 عملکرد دروس
@@ -937,7 +976,10 @@ export default function App() {
 
       {screen === 'activityForm' && ActivityFormScreen()}
 
-      {screen === 'allActivities' && AllActivitiesScreen()}
+      {screen === 'allActivities' && AllActivitiesScreen()} 
+           {screen === 'studyPlanner' && (
+        <StudyPlanner onBack={() => setScreen('dashboard')} />
+      )}
     </>
   );
 
